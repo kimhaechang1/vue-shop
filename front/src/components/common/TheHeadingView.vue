@@ -1,26 +1,26 @@
 <script setup>
 import { ref } from "vue";
-const toggle = ref({ hide: true });
+const toggle = ref(false);
 
 const toggleEvent = () => {
-  toggle.value.hide = !toggle.value.hide;
+  toggle.value = !toggle.value;
 };
 </script>
 
 <template>
   <header>
     <div class="layout">
-      <div class="logo">SHOP</div>
+      <div class="logo"><router-link :to="{name : 'index'}">SHOP</router-link></div>
       <nav>
-        <div>Shoes</div>
+        <div><router-link :to="{name : 'shop'}">Shoes</router-link></div>
         <div>Notice</div>
         <div>SignIn</div>
         <div>SignUp</div>
       </nav>
       <div @click="toggleEvent" class="dropdown">
         menu
-        <div :class="toggle" class="menu">
-          <div>Shoes</div>
+        <div v-show="toggle" class="menu">
+          <div><router-link :to="{name : 'shop'}">Shoes</router-link></div>
           <div>Notice</div>
           <div>SignIn</div>
           <div>SignUp</div>
@@ -63,21 +63,29 @@ nav {
   display: none;
   position: relative;
 }
-.hide {
-  display: none;
-}
 .menu {
-  border-radius: 15px;
+  border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
     rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
   position: absolute;
+  padding-top: 12px;
+  padding-bottom: 12px;
   top: 2.5rem;
+  width: 85px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+.logo, .dropdown, .menu > div, nav > div{
+    cursor: pointer;
 }
 @media (max-width: 896px) {
   .layout {
     justify-content: space-between;
-    padding-left: 25px;
-    padding-right: 25px;
+    padding-left: 70px;
+    padding-right: 70px;
   }
   nav {
     display: none;
