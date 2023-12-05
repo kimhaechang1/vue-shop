@@ -4,29 +4,46 @@
 
 <mapper namespace="com.khc.shop.product.model.mapper.ProductMapper">
     <resultMap id="product" type="productDto">
-        <!--product_id, product_name, product_count, product_size, product_img, product_detail, product_date, product_brand-->
         <result column="product_id" property="productId"></result>
         <result column="product_name" property="productName"></result>
         <result column="product_img" property="productImg"></result>
         <result column="product_brand" property="productBrand"></result>
+        <result column="product_description" property="productDescription"></result>
     </resultMap>
+
+    <resultMap id="productDetail" type="productDetailDto">
+        <result column="product_id" property="productId"></result>
+        <result column="product_code" property="productCode"></result>
+        <result column="product_size" property="productSize"></result>
+        <result column="product_date" property="productDate"></result>
+    </resultMap>
+
+
     <sql id="search">
-        <if test="word != null and ''.equals(word)">
-            <if test="'brand'.equals(cate)">
-                AND product_name = CONCAT('%',word,'%');
-            </if>
-            <if test="'name'.equals(cate)">
-                AND product_brand = CONCAT('%',word,'%');
-            </if>
+        <if test='brand != null and !"".equals(brand)'>
+            AND product_brand LIKE CONCAT('%','${brand}','%')
+        </if>
+        <if test='word!=null and !"".equals(word)'>
+            AND product_name LIKE CONCAT('%','${word}','%')
+        </if>
+        <if test='code!=null and !"".equals(code)'>
+            AND product_code LIKE CONCAT('%', '${code}', '%')
         </if>
     </sql>
+
+    <sql id="limit">
+        <if test='start != null and !"".equals(start) and offset != null and "".equals(offset)'>
+            LIMIT ${start} ${offset}
+        </if>
+    </sql>
+
     <select id="getProductList" parameterType="map" resultMap="product">
         SELECT
             product_id, product_name, product_img, product_brand
         FROM product
         WHERE 1 = 1
         <include refid="search"></include>
-        LIMIT ${start}, ${offset}
+        <include refid="limit"></include>
     </select>
     <select id="getProductCount" parameterType="map" resultType="int">
         SELECT
@@ -34,5 +51,34 @@
         FROM product
         WHERE 1=1
         <include refid="search"></include>
+    </select>
+
+    <insert id="insertProduct" parameterType="productDto">
+        INSERT INTO product
+            ('product_name', 'product_img', 'product_brand', 'product_description')
+        VALUES (${productName}, ${productImg}, ${productBrand}, ${productDescription})
+        <selectKey keyProperty="productId" resultType="int" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+    <!-- product_code, product_id, product_description, product_size, product_date -->
+    <insert id="insertProductDetail" parameterType="productDetailDto">
+        INSERT INTO product_detail
+            ('product_code', 'product_id', 'product_size')
+        VALUES (${product_code}, ${product_id}, ${product_size})
+    </insert>
+
+    <select id="getProductDetailCountByproductId" parameterType="String" resultType="int">
+        SELECT COUNT(product_code)
+        FROM product_detail
+        WHERE product_id = ${productId}
+    </select>
+
+    <select id="getProductDetailListByproductId" parameterType="map" resultMap="productDetail">
+        SELECT product_code, product_id, product_size, product_date
+        FROM product_detail
+        WHERE product_id = ${productId}
+        <include refid="search"></include>
+        <include refid="limit"></include>
     </select>
 </mapper>
