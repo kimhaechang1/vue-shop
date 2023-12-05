@@ -1,17 +1,17 @@
 package com.khc.shop.product.model;
 
 public class ProductDto {
-    //product_id, product_name, product_count, product_size, product_img, product_detail, product_date, product_brand
-    private String productId;
+    private int productId;
     private String productName;
     private String productImg;
     private String productBrand;
+    private String productDescription;
 
-    public String getProductId() {
+    public int getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(int productId) {
         this.productId = productId;
     }
 
@@ -39,13 +39,22 @@ public class ProductDto {
         this.productBrand = productBrand;
     }
 
+    public String getProductDescription() {
+        return productDescription;
+    }
+
+    public void setProductDescription(String productDescription) {
+        this.productDescription = productDescription;
+    }
+
     @Override
     public String toString() {
         return "ProductDto{" +
-                "productId='" + productId + '\'' +
+                "productId=" + productId +
                 ", productName='" + productName + '\'' +
                 ", productImg='" + productImg + '\'' +
                 ", productBrand='" + productBrand + '\'' +
+                ", productDescription='" + productDescription + '\'' +
                 '}';
     }
 }
