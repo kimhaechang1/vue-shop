@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.33, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: vue-shop
 -- ------------------------------------------------------
--- Server version	8.0.33
+-- Server version	8.0.34
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -109,6 +109,7 @@ CREATE TABLE `product` (
   `product_name` varchar(45) NOT NULL,
   `product_img` varchar(45) DEFAULT NULL,
   `product_brand` varchar(45) DEFAULT NULL,
+  `product_description` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`product_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -119,7 +120,7 @@ CREATE TABLE `product` (
 
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (1,'나이키 덩크 로우 SP',NULL,'NIKE'),(2,'나이키 덩크 로우 프리미엄',NULL,'NIKE'),(3,'나이키 코르테즈',NULL,'NIKE'),(4,'나이키 덩크 로우 레트로',NULL,'NIKE'),(5,'나이키 에어 포스 1 \'07',NULL,'NIKE'),(6,'나이키 에어 조던 1 로우',NULL,'NIKE'),(7,'나이키 루나 포스 1',NULL,'NIKE'),(8,'나이키 보메로 5',NULL,'NIKE'),(9,'나이키 에어 베이퍼맥스 2023 플라이니트',NULL,'NIKE'),(10,'나이키 에어 베이퍼맥스 모크 롬',NULL,'NIKE'),(11,'나이키 에어맥스 2013',NULL,'NIKE'),(12,'나이키 에어 포스 1 \'07',NULL,'NIKE'),(13,'나이키 에어맥스 97',NULL,'NIKE'),(14,'나이키 에어맥스 펄스',NULL,'NIKE'),(15,'나이키 조던 1 미드',NULL,'NIKE'),(16,'나이키 에어맥스 97 SE',NULL,'NIKE'),(17,'나이키 다운시프터 12',NULL,'NIKE'),(18,'나이키 조던 1 하이 OG \'로얄 리이매진드\'',NULL,'NIKE'),(19,'나이키 터미네이터 로우',NULL,'NIKE'),(20,'나이키 페가수스 40',NULL,'NIKE'),(21,'나이키 에어 조던 1 하이 G NRG',NULL,'NIKE'),(22,'아디다스 버뮤다',NULL,'ADIDAS'),(23,'아디다스 가젤',NULL,'ADIDAS'),(24,'아디다스 가젤 볼드',NULL,'ADIDAS'),(25,'아디다스 가젤 인도어',NULL,'ADIDAS'),(26,'아디다스 삼바 OG',NULL,'ADIDAS'),(27,'아디다스 슈퍼스타',NULL,'ADIDAS'),(28,'아디다스 슈퍼스타 XLG',NULL,'ADIDAS'),(29,'아디다스 슈퍼스타 82',NULL,'ADIDAS'),(30,'아디다스 리스폰스 CL',NULL,'ADIDAS'),(31,'아디다스 퓨어부스트 22',NULL,'ADIDAS'),(32,'아디다스 울트라부스트 1.0',NULL,'ADIDAS');
+INSERT INTO `product` VALUES (1,'나이키 덩크 로우 SP',NULL,'NIKE',NULL),(2,'나이키 덩크 로우 프리미엄',NULL,'NIKE',NULL),(3,'나이키 코르테즈',NULL,'NIKE',NULL),(4,'나이키 덩크 로우 레트로',NULL,'NIKE',NULL),(5,'나이키 에어 포스 1 \'07',NULL,'NIKE',NULL),(6,'나이키 에어 조던 1 로우',NULL,'NIKE',NULL),(7,'나이키 루나 포스 1',NULL,'NIKE',NULL),(8,'나이키 보메로 5',NULL,'NIKE',NULL),(9,'나이키 에어 베이퍼맥스 2023 플라이니트',NULL,'NIKE',NULL),(10,'나이키 에어 베이퍼맥스 모크 롬',NULL,'NIKE',NULL),(11,'나이키 에어맥스 2013',NULL,'NIKE',NULL),(12,'나이키 에어 포스 1 \'07',NULL,'NIKE',NULL),(13,'나이키 에어맥스 97',NULL,'NIKE',NULL),(14,'나이키 에어맥스 펄스',NULL,'NIKE',NULL),(15,'나이키 조던 1 미드',NULL,'NIKE',NULL),(16,'나이키 에어맥스 97 SE',NULL,'NIKE',NULL),(17,'나이키 다운시프터 12',NULL,'NIKE',NULL),(18,'나이키 조던 1 하이 OG \'로얄 리이매진드\'',NULL,'NIKE',NULL),(19,'나이키 터미네이터 로우',NULL,'NIKE',NULL),(20,'나이키 페가수스 40',NULL,'NIKE',NULL),(21,'나이키 에어 조던 1 하이 G NRG',NULL,'NIKE',NULL),(22,'아디다스 버뮤다',NULL,'ADIDAS',NULL),(23,'아디다스 가젤',NULL,'ADIDAS',NULL),(24,'아디다스 가젤 볼드',NULL,'ADIDAS',NULL),(25,'아디다스 가젤 인도어',NULL,'ADIDAS',NULL),(26,'아디다스 삼바 OG',NULL,'ADIDAS',NULL),(27,'아디다스 슈퍼스타',NULL,'ADIDAS',NULL),(28,'아디다스 슈퍼스타 XLG',NULL,'ADIDAS',NULL),(29,'아디다스 슈퍼스타 82',NULL,'ADIDAS',NULL),(30,'아디다스 리스폰스 CL',NULL,'ADIDAS',NULL),(31,'아디다스 퓨어부스트 22',NULL,'ADIDAS',NULL),(32,'아디다스 울트라부스트 1.0',NULL,'ADIDAS',NULL);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -133,7 +134,6 @@ DROP TABLE IF EXISTS `product_detail`;
 CREATE TABLE `product_detail` (
   `product_code` varchar(100) NOT NULL,
   `product_id` int NOT NULL,
-  `product_description` varchar(200) DEFAULT NULL,
   `product_size` int NOT NULL,
   `product_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`product_code`),
@@ -160,4 +160,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-05  3:17:17
+-- Dump completed on 2023-12-05 20:48:54
