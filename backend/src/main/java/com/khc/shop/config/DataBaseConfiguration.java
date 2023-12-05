@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -25,6 +26,8 @@ public class DataBaseConfiguration{
         this.applicationContext = applicationContext;
     }
 
+
+
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.hikari")
     public HikariConfig hikariConfig() {
@@ -36,13 +39,19 @@ public class DataBaseConfiguration{
         return new HikariDataSource(hikariConfig());
     }
 
+    // mybatis spring Java Configuration 방법
+    // transactionManager 설정
+    @Bean
+    public DataSourceTransactionManager transactionManager(){
+        return new DataSourceTransactionManager(dataSource());
+    }
+
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
         SqlSessionFactoryBean session = new SqlSessionFactoryBean();
         session.setDataSource(dataSource);
         session.setMapperLocations(applicationContext.getResources("classpath:mapper/**/*.xml"));
         session.setTypeAliasesPackage("com.khc.shop.*.model");
-//		session.setConfigLocation(new PathMatchingResourcePatternResolver().getResource("classpath:mybatis/mybatis-config.xml"));
         return session.getObject();
     }
 
