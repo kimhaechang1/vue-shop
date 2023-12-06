@@ -16,5 +16,5 @@ public interface ProductMapper {
     public void insertProductDetail(ProductDetailDto productDetailDto) throws SQLException;
     public List<ProductDetailDto> getProductDetailListByproductId(Map<String, String> params) throws SQLException;
     public int getProductDetailCountByproductId(String productId) throws SQLException;
-
+    public Integer getProductIdbyproductName(String productName) throws SQLException;
 }

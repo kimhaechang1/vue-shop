@@ -87,8 +87,12 @@ public class ProductServiceImpl implements ProductService{
         productResultDto.setMsg("성공적으로 제품을 등록하였습니다.");
         productResultDto.setStatus("201");
         try{
-            mapper.insertProduct(productDto);
-            productDetailDto.setProductId(productDto.getProductId());
+            Integer productId = mapper.getProductIdbyproductName(productDto.getProductName());
+            if(productId == null){
+                mapper.insertProduct(productDto);
+                productId = productDto.getProductId();
+            }
+            productDetailDto
             mapper.insertProductDetail(productDetailDto);
         }catch(Exception e){
             logger.debug("ProductService.productInsert Exception 발생 : {}", e.toString());

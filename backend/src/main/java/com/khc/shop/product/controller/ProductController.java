@@ -1,13 +1,10 @@
 package com.khc.shop.product.controller;
 
-import com.khc.shop.product.model.ProductDetailDto;
 import com.khc.shop.product.model.ProductFromClientDto;
 import com.khc.shop.product.model.ProductResultDto;
 import com.khc.shop.product.model.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,9 +50,10 @@ public class ProductController {
     }
 
     @GetMapping("/${productId}")
-    protected ResponseEntity<ProductResultDto> getProductDetailList(@RequestParam Map<String, String> params){
+    protected ResponseEntity<ProductResultDto> getProductDetailList(@RequestParam Map<String, String> params, @PathVariable("productId") String productId){
         ProductResultDto productResultDto = null;
         try{
+            params.put("productId", productId);
             productResultDto = service.getProductDetailList(params);
         }catch(Exception e){
             logger.debug("ProductController.getProductDetailList Exception 발생 : {}", e.toString());
