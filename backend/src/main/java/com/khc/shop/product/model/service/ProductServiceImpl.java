@@ -59,12 +59,14 @@ public class ProductServiceImpl implements ProductService{
                 StringBuilder sb = new StringBuilder();
                 sb.append("검색된 제품은 총 ").append(count).append("건 입니다.");
                 productResultDto.setMsg(sb.toString());
+
             }
         }catch(Exception e){
             productListDto.setTotalItemCount(0);
             productListDto.setTotalPageCount(1);
             logger.debug("ProductService.getProductList Exception 발생 : {}", e.toString());
-            throw e;
+            return productResultDto;
+
         }
         productListDto.setProductList(productList);
         return productResultDto;
@@ -87,19 +89,20 @@ public class ProductServiceImpl implements ProductService{
         productResultDto.setMsg("성공적으로 제품을 등록하였습니다.");
         productResultDto.setStatus("201");
         try{
+            logger.debug("parameter productName : {}", productDto.getProductName());
             Integer productId = mapper.getProductIdbyproductName(productDto.getProductName());
             if(productId == null){
                 mapper.insertProduct(productDto);
                 productId = productDto.getProductId();
             }
-            productDetailDto
+            productDetailDto.setProductId(productId);
             mapper.insertProductDetail(productDetailDto);
         }catch(Exception e){
             logger.debug("ProductService.productInsert Exception 발생 : {}", e.toString());
             transactionManager.rollback(txStatus);
             productResultDto.setMsg("처리 도중 에러가 발생하였습니다.");
             productResultDto.setStatus("500");
-            throw e;
+            return productResultDto;
         }
         transactionManager.commit(txStatus);
         return productResultDto;
@@ -108,7 +111,6 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductResultDto getProductDetailList(Map<String, String> params) throws Exception {
         ProductResultDto productResultDto = new ProductResultDto();
-        productResultDto.setMsg("검색된 제품이 0개 입니다.");
         productResultDto.setStatus("210");
         int count = 0;
         ProductDetailListDto productDetailListDto = new ProductDetailListDto();
@@ -127,15 +129,41 @@ public class ProductServiceImpl implements ProductService{
                 params.put("start", String.valueOf((start-1) * spp));
                 params.put("offset", params.get("spp"));
                 productDetailList = mapper.getProductDetailListByproductId(params);
+                productResultDto.setStatus("200");
             }
+            StringBuilder sb = new StringBuilder();
+            sb.append("검색된 제품은 총 ").append(count).append("건 입니다.");
+            productResultDto.setMsg(sb.toString());
         }catch(Exception e){
             productDetailListDto.setTotalItemCount(0);
             productDetailListDto.setTotalPageCount(1);
             productResultDto.setStatus("500");
             productResultDto.setMsg("처리 도중 에러가 발생하였습니다.");
+            return productResultDto;
         }
         productDetailListDto.setProductDetailDtoList(productDetailList);
         productResultDto.setData(productDetailListDto);
+        return productResultDto;
+    }
+
+    @Override
+    public ProductResultDto searchProductByCode(String productCode) throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setMsg("해당하는 제품이 없습니다.");
+        productResultDto.setStatus("210");
+        ProductInfoDto productInfoDto = null;
+        productResultDto.setData(new Object());
+        try{
+            logger.debug("ProductResultDto searchProductByCode params : {}", productCode);
+            productInfoDto = mapper.searchProductByCode(productCode);
+            logger.debug("productInfoDto is null : {}", (productInfoDto == null));
+            productResultDto.setData(productInfoDto);
+        }catch(Exception e){
+            productResultDto.setMsg("처리 도중 에러가 발생하였습니다.");
+            productResultDto.setStatus("500");
+            productResultDto.setData(new Object());
+            return productResultDto;
+        }
         return productResultDto;
     }
 }

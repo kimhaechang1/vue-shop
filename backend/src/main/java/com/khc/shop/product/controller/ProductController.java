@@ -33,12 +33,12 @@ public class ProductController {
         }catch(Exception e){
             logger.debug("ProductController.getProductList Exception 발생 : {}", e.toString());
         }
-
+        logger.debug("ProductController.getProductList result : {}", productResultDto);
         return new ResponseEntity<>(productResultDto, HttpStatus.OK);
     }
 
     @PostMapping
-    protected ResponseEntity<ProductResultDto> insertProduct(ProductFromClientDto productFromClientDto){
+    protected ResponseEntity<ProductResultDto> insertProduct(@RequestBody ProductFromClientDto productFromClientDto){
         ProductResultDto productResultDto = null;
         logger.debug("ProductController.insertProduct requestBody : {}", productFromClientDto.toString());
         try{
@@ -46,10 +46,11 @@ public class ProductController {
         }catch(Exception e){
             logger.debug("ProductController.insertProduct Exception 발생 : {}", e.toString());
         }
+        logger.debug("ProductController.insertProduct result : {}", productResultDto);
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
 
-    @GetMapping("/${productId}")
+    @GetMapping("/{productId}")
     protected ResponseEntity<ProductResultDto> getProductDetailList(@RequestParam Map<String, String> params, @PathVariable("productId") String productId){
         ProductResultDto productResultDto = null;
         try{
@@ -58,6 +59,21 @@ public class ProductController {
         }catch(Exception e){
             logger.debug("ProductController.getProductDetailList Exception 발생 : {}", e.toString());
         }
+        logger.debug("ProductController.getProductDetailList result : {}", productResultDto);
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/search/{productCode}")
+    protected ResponseEntity<ProductResultDto> searchProductByCode(@PathVariable String productCode){
+        ProductResultDto productResultDto  = null;
+        try{
+            productResultDto = service.searchProductByCode(productCode);
+        }catch(Exception e){
+            logger.debug("ProductController.searchProductByCode Exception 발생 : {}", e.toString());
+
+        }
+        logger.debug("ProductController.searchProductByCode result : {}", productResultDto);
+
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
 }

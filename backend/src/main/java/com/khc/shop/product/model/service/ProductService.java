@@ -13,4 +13,5 @@ public interface ProductService {
     public ProductResultDto productInsert(ProductFromClientDto productFromClientDto) throws Exception;
 
     public ProductResultDto getProductDetailList(Map<String, String> params) throws Exception;
+    public ProductResultDto searchProductByCode(String productCode) throws Exception;
 }
