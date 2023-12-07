@@ -29,21 +29,24 @@
         <result column="product_date" property="productDate"></result>
     </resultMap>
 
-    <sql id="search">
+    <sql id="searchProduct">
         <if test='brand != null and !"".equals(brand)'>
             AND product_brand LIKE CONCAT('%','${brand}','%')
         </if>
         <if test='word!=null and !"".equals(word)'>
             AND product_name LIKE CONCAT('%','${word}','%')
         </if>
-        <if test='code!=null and !"".equals(code)'>
-            AND product_code LIKE CONCAT('%', '${code}', '%')
+    </sql>
+
+    <sql id="searchProductItem">
+        <if test='size!=null and !"".equals(size)'>
+            AND product_size = ${size}
         </if>
     </sql>
 
     <sql id="limit">
-        <if test='start != null and !"".equals(start) and offset != null and "".equals(offset)'>
-            LIMIT ${start} ${offset}
+        <if test='start != null and !"".equals(start) and offset != null and !"".equals(offset)'>
+            LIMIT ${start}, ${offset}
         </if>
     </sql>
 
@@ -52,7 +55,7 @@
             product_id, product_name, product_img, product_brand, product_description
         FROM product
         WHERE 1 = 1
-        <include refid="search"></include>
+        <include refid="searchProduct"></include>
         <include refid="limit"></include>
     </select>
     <select id="getProductCount" parameterType="map" resultType="int">
@@ -60,7 +63,7 @@
             COUNT(product_id)
         FROM product
         WHERE 1=1
-        <include refid="search"></include>
+        <include refid="searchProduct"></include>
     </select>
 
     <insert id="insertProduct" parameterType="productDto">
@@ -71,28 +74,28 @@
             select last_insert_id()
         </selectKey>
     </insert>
-    <!-- product_code, product_id, product_description, product_size, product_date -->
+
     <insert id="insertProductItem" parameterType="productWHDto">
         INSERT INTO product_warehouse
             (product_code, product_id, product_size)
         VALUES ('${productCode}', ${productId}, ${productSize})
     </insert>
 
-    <select id="getProductDetailCountByproductId" parameterType="String" resultType="int">
+    <select id="getProductWHCountByProductId" parameterType="map" resultType="int">
         SELECT COUNT(product_code)
         FROM product_warehouse
         WHERE product_id = ${productId}
+        <include refid="searchProductItem"></include>
     </select>
 
-    <select id="getProductDetailListByproductId" parameterType="map" resultMap="productWH">
+    <select id="getProductWHListByProductId" parameterType="map" resultMap="productWH">
         SELECT product_code, product_id, product_size, product_date
         FROM product_warehouse
         WHERE product_id = ${productId}
-        <include refid="search"></include>
-        <include refid="limit"></include>
+        <include refid="searchProductItem"></include>
     </select>
 
-    <select id="getProductIdbyproductName" parameterType="String" resultType="java.lang.Integer">
+    <select id="getProductIdbyProductName" parameterType="String" resultType="java.lang.Integer">
         SELECT product_id
         FROM product
         WHERE product_name = '${productName}'
