@@ -13,6 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -73,7 +77,7 @@ public class ProductAPITest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("220"));
+                .andExpect(jsonPath("$.status").value("501"));
     }
 
     @Test
@@ -82,7 +86,7 @@ public class ProductAPITest {
         ProductWHDto productWHDto = new ProductWHDto();
         productWHDto.setProductSize(270);
         productWHDto.setProductCode("TEST01");
-        productWHDto.setProductId(36);
+        productWHDto.setProductId(37);
         ObjectMapper mapper =new ObjectMapper();
         mockMvc.perform(
                 post("/product/"+productWHDto.getProductId())
@@ -106,7 +110,7 @@ public class ProductAPITest {
     public void productItemInsertProductIdNotFound() throws Exception{
         ProductWHDto productWHDto = new ProductWHDto();
         productWHDto.setProductSize(270);
-        productWHDto.setProductCode("TEST01");
+        productWHDto.setProductCode("TEST02");
         productWHDto.setProductId(99);
         ObjectMapper mapper =new ObjectMapper();
         mockMvc.perform(
@@ -125,7 +129,7 @@ public class ProductAPITest {
     public void productItemInsertDuplicatedProductCode() throws Exception{
         ProductWHDto productWHDto = new ProductWHDto();
         productWHDto.setProductSize(270);
-        productWHDto.setProductCode("DF212412F");
+        productWHDto.setProductCode("TEST01");
         productWHDto.setProductId(1);
         ObjectMapper mapper =new ObjectMapper();
         mockMvc.perform(
@@ -139,51 +143,65 @@ public class ProductAPITest {
     }
 
     @Test
-    @DisplayName("productDetailList by productId Test")
-    public void productDetailListByProductIdTest() throws Exception{
-
-        String productId = "1";
-        int expectedTotalItemCount = productMapper.getProductDetailCountByproductId(productId);
-        if(expectedTotalItemCount == 0){
-            fail("msg : \n ==> productDetailListByProductIdTest productId : "+productId+" but item count 0 !!!");
-            return;
-        }
-        int spp = 9;
+    @DisplayName("productList Test")
+    public void productList() throws Exception{
+        Map<String, String> map = new HashMap<>();
+        map.put("pgno","1");
+        int pgno = Integer.parseInt(map.get("pgno"));
+        map.put("spp","9");
+        int spp = Integer.parseInt(map.get("spp"));
+        int expectedTotalItemCount = productMapper.getProductCount(map);
+        String expectedStatus = expectedTotalItemCount == 0 ? "210" : "200";
         int expectedTotalPageCount;
-        if(spp > expectedTotalItemCount){
-            expectedTotalPageCount = 1;
-        }else{
-            expectedTotalPageCount = expectedTotalItemCount % spp == 0 ? expectedTotalItemCount / spp : expectedTotalItemCount / spp + 1;
-        }
+        if(expectedTotalItemCount == 0 || (pgno-1) * spp > expectedTotalItemCount) expectedTotalPageCount = 1;
+        else expectedTotalPageCount = expectedTotalItemCount % spp == 0 ? expectedTotalItemCount / spp : expectedTotalItemCount / spp + 1;
         mockMvc.perform(
-                get("/product/"+productId+"?pgno=1&spp="+spp)
+                get("/product")
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("200"))
-                .andExpect(jsonPath("$.data.totalPageCount").value(expectedTotalPageCount))
-                .andExpect(jsonPath("$.data.totalItemCount").value(expectedTotalItemCount));
+                .andExpect(jsonPath("$.status").value(expectedStatus))
+                .andExpect(jsonPath("$.data.totalItemCount").value(expectedTotalItemCount))
+                .andExpect(jsonPath("$.data.totalPageCount").value(expectedTotalPageCount));
     }
+
 
     @Test
-    @DisplayName("productDetailList by productId if not exist")
-    public void productDetailListByProductIdTestIfNotExist() throws Exception{
+    @DisplayName("productWHList by productId Test")
+    public void productDetailListByProductId() throws Exception{
         String productId = "1";
-        int count = productMapper.getProductDetailCountByproductId(productId);
-        if(count > 0){
-            fail("msg : \n ==> productId : "+productId+" has productDetailItems!!");
-            return;
-        }
+        Map<String, String> map = new HashMap<>();
+        map.put("productId", productId);
+        int expectedTotalItemCount = productMapper.getProductWHCountByProductId(map);
+        String expectedStatus = expectedTotalItemCount==0 ? "210" : "200";
         mockMvc.perform(
-                get("/product/"+productId+"?pgno=1&spp=9")
+                get("/product/"+productId)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("210"))
-                .andExpect(jsonPath("$.data.totalItemCount").value(0))
-                .andExpect(jsonPath("$.data.totalPageCount").value(1))
-                .andExpect(jsonPath("$.data.productDetailDtoList.size()").value(0));
+                .andExpect(jsonPath("$.status").value(expectedStatus))
+                .andExpect(jsonPath("$.data.size()").value(expectedTotalItemCount));
     }
+
+   @Test
+   @DisplayName("productWHList by productId With size Param Test")
+   public void productWHListWithSizeParam() throws Exception{
+        String productId = "1";
+        String size = "260";
+        Map<String, String> map =new HashMap<>();
+        map.put("productId", productId);
+        map.put("size",size);
+        int expectedTotalItemCount = productMapper.getProductWHCountByProductId(map);
+        String expectedStatus = expectedTotalItemCount== 0 ? "210" : "200";
+        mockMvc.perform(
+                get("/product/"+productId+"?size="+size)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(expectedStatus))
+                .andExpect(jsonPath("$.data.size()").value(expectedTotalItemCount));
+
+   }
 
 
 }
