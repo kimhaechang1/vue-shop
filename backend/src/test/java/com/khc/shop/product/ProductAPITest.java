@@ -2,7 +2,8 @@ package com.khc.shop.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khc.shop.product.controller.ProductController;
-import com.khc.shop.product.model.ProductFromClientDto;
+import com.khc.shop.product.model.ProductDto;
+import com.khc.shop.product.model.ProductWHDto;
 import com.khc.shop.product.model.mapper.ProductMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,48 +34,108 @@ public class ProductAPITest {
     @Test
     @DisplayName("Product Insert Test")
     void productInsertTest() throws Exception{
-        ProductFromClientDto productFromClientDto = new ProductFromClientDto();
-        productFromClientDto.setProductCode("DEFEXDF19");
-        productFromClientDto.setProductBrand("NIKE");
-        productFromClientDto.setProductSize(270);
-        productFromClientDto.setProductDescription("test description");
-        productFromClientDto.setProductName("나이키 덩크 로우 SP");
+        ProductDto productDto = new ProductDto();
+        productDto.setProductBrand("NIKE");
+        productDto.setProductDescription("test description");
+        productDto.setProductName("test shoes");
         ObjectMapper mapper = new ObjectMapper();
         mockMvc.perform(
                 post("/product")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(productFromClientDto))
-        ).andExpect(status().isOk());
+                        .content(mapper.writeValueAsString(productDto))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value("201"));
+
         mockMvc.perform(
-                        get("/product/search/"+productFromClientDto.getProductCode())
+                        get("/product?brand="+productDto.getProductBrand()+"&word="+productDto.getProductName())
 
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data.productId").value(1));
+                .andExpect(jsonPath("$.status").value("200"))
+                .andExpect(jsonPath("$.data.productList[0].productName").value(productDto.getProductName()));
     }
 
     @Test
-    @DisplayName("insert Product Transaction Test if invoke Exception")
-    public void productInsertTransactionTest() throws Exception{
-        ProductFromClientDto productFromClientDto = new ProductFromClientDto();
-        productFromClientDto.setProductCode("DEFEXDF19");
-        productFromClientDto.setProductName("나이키 덩크 로우 SP");
+    @DisplayName("Product Insert But Duplicated ProductName Test")
+    public void productInsertDuplicatedProductName() throws Exception{
+        ProductDto productDto = new ProductDto();
+        productDto.setProductBrand("NIKE");
+        productDto.setProductDescription("test description");
+        productDto.setProductName("test shoes");
         ObjectMapper mapper = new ObjectMapper();
         mockMvc.perform(
-                post("/product")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(productFromClientDto))
-        )
+                        post("/product")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(productDto))
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("500"));
+                .andExpect(jsonPath("$.status").value("220"));
+    }
+
+    @Test
+    @DisplayName("ProductItem Insert Test")
+    public void productItemInsertTest() throws Exception{
+        ProductWHDto productWHDto = new ProductWHDto();
+        productWHDto.setProductSize(270);
+        productWHDto.setProductCode("TEST01");
+        productWHDto.setProductId(36);
+        ObjectMapper mapper =new ObjectMapper();
         mockMvc.perform(
-                get("/product/search/"+productFromClientDto.getProductCode())
+                post("/product/"+productWHDto.getProductId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(productWHDto))
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("210"));
+                .andExpect(jsonPath("$.status").value("201"));
+        mockMvc.perform(
+                get("/product/search/"+productWHDto.getProductCode())
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value("200"))
+                .andExpect(jsonPath("$.data.productCode").value(productWHDto.getProductCode()));
+    }
+
+    @Test
+    @DisplayName("ProductItem Insert But productId Not Found Test")
+    public void productItemInsertProductIdNotFound() throws Exception{
+        ProductWHDto productWHDto = new ProductWHDto();
+        productWHDto.setProductSize(270);
+        productWHDto.setProductCode("TEST01");
+        productWHDto.setProductId(99);
+        ObjectMapper mapper =new ObjectMapper();
+        mockMvc.perform(
+                        post("/product/"+productWHDto.getProductId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(productWHDto))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value("502"));
+
+    }
+
+    @Test
+    @DisplayName("ProductItem Insert With Duplicated ProductCode Test")
+    public void productItemInsertDuplicatedProductCode() throws Exception{
+        ProductWHDto productWHDto = new ProductWHDto();
+        productWHDto.setProductSize(270);
+        productWHDto.setProductCode("DF212412F");
+        productWHDto.setProductId(1);
+        ObjectMapper mapper =new ObjectMapper();
+        mockMvc.perform(
+                        post("/product/"+productWHDto.getProductId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(productWHDto))
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value("501"));
     }
 
     @Test

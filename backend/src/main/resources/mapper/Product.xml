@@ -11,7 +11,7 @@
         <result column="product_description" property="productDescription"></result>
     </resultMap>
 
-    <resultMap id="productDetail" type="productDetailDto">
+    <resultMap id="productWH" type="productWHDto">
         <result column="product_id" property="productId"></result>
         <result column="product_code" property="productCode"></result>
         <result column="product_size" property="productSize"></result>
@@ -49,7 +49,7 @@
 
     <select id="getProductList" parameterType="map" resultMap="product">
         SELECT
-            product_id, product_name, product_img, product_brand
+            product_id, product_name, product_img, product_brand, product_description
         FROM product
         WHERE 1 = 1
         <include refid="search"></include>
@@ -72,21 +72,21 @@
         </selectKey>
     </insert>
     <!-- product_code, product_id, product_description, product_size, product_date -->
-    <insert id="insertProductDetail" parameterType="productDetailDto">
-        INSERT INTO product_detail
+    <insert id="insertProductItem" parameterType="productWHDto">
+        INSERT INTO product_warehouse
             (product_code, product_id, product_size)
         VALUES ('${productCode}', ${productId}, ${productSize})
     </insert>
 
     <select id="getProductDetailCountByproductId" parameterType="String" resultType="int">
         SELECT COUNT(product_code)
-        FROM product_detail
+        FROM product_warehouse
         WHERE product_id = ${productId}
     </select>
 
-    <select id="getProductDetailListByproductId" parameterType="map" resultMap="productDetail">
+    <select id="getProductDetailListByproductId" parameterType="map" resultMap="productWH">
         SELECT product_code, product_id, product_size, product_date
-        FROM product_detail
+        FROM product_warehouse
         WHERE product_id = ${productId}
         <include refid="search"></include>
         <include refid="limit"></include>
@@ -101,7 +101,7 @@
     <select id="searchProductByCode" parameterType="String" resultMap="productInfo">
         SELECT
             p.product_id, p.product_name, p.product_img, p.product_brand, p.product_description, d.product_code, d.product_size, d.product_date
-        FROM product_detail d inner join product p
+        FROM product_warehouse d inner join product p
         on d.product_id = p.product_id
         where product_code = '${productCode}'
     </select>

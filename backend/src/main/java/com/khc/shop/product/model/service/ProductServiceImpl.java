@@ -1,9 +1,12 @@
 package com.khc.shop.product.model.service;
 
+import com.khc.shop.product.exception.DuplicatedProductException;
 import com.khc.shop.product.model.*;
 import com.khc.shop.product.model.mapper.ProductMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -11,6 +14,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,8 +36,12 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public ProductResultDto getProductList(Map<String, String> params) throws Exception {
-        int pgno = Integer.parseInt(params.get("pgno"));
-        int spp = Integer.parseInt(params.get("spp"));
+        String pgnoParam = params.get("pgno");
+        String sppParam = params.get("spp");
+        int pgno = 1;
+        int spp = 9;
+        if(pgnoParam != null && !"".equals(pgnoParam)) pgno = Integer.parseInt(pgnoParam);
+        if(sppParam != null && !"".equals(sppParam)) spp = Integer.parseInt(sppParam);
         Map<String, String> map = new HashMap<>();
         ProductResultDto productResultDto = new ProductResultDto();
         ProductListDto productListDto = new ProductListDto();
@@ -73,40 +81,25 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductResultDto productInsert(ProductFromClientDto productFromClientDto) throws Exception {
-        TransactionStatus txStatus = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        ProductDto productDto = new ProductDto();
-        ProductDetailDto productDetailDto = new ProductDetailDto();
-
-        productDto.setProductName(productFromClientDto.getProductName());
-        productDto.setProductBrand(productFromClientDto.getProductBrand());
-        productDto.setProductImg(productFromClientDto.getProductImg());
-
-        productDetailDto.setProductCode(productFromClientDto.getProductCode());
-        productDetailDto.setProductSize(productFromClientDto.getProductSize());
-
+    public ProductResultDto insertProduct(ProductDto productDto) throws Exception {
         ProductResultDto productResultDto = new ProductResultDto();
-        productResultDto.setMsg("성공적으로 제품을 등록하였습니다.");
+        productResultDto.setMsg("제품을 성공적으로 등록하였습니다.");
         productResultDto.setStatus("201");
         try{
-            logger.debug("parameter productName : {}", productDto.getProductName());
             Integer productId = mapper.getProductIdbyproductName(productDto.getProductName());
-            if(productId == null){
-                mapper.insertProduct(productDto);
-                productId = productDto.getProductId();
-            }
-            productDetailDto.setProductId(productId);
-            mapper.insertProductDetail(productDetailDto);
-        }catch(Exception e){
-            logger.debug("ProductService.productInsert Exception 발생 : {}", e.toString());
-            transactionManager.rollback(txStatus);
-            productResultDto.setMsg("처리 도중 에러가 발생하였습니다.");
+            if(productId != null) throw new DuplicatedProductException(productDto.getProductName());
+            mapper.insertProduct(productDto);
+        }catch(SQLException e){
+            productResultDto.setMsg("제품 등록에 실패하였습니다.");
             productResultDto.setStatus("500");
+        }catch(DuplicatedProductException e){
+            productResultDto.setMsg(e.getMessage());
+            productResultDto.setStatus(e.getStatus());
+        } finally{
             return productResultDto;
         }
-        transactionManager.commit(txStatus);
-        return productResultDto;
     }
+
 
     @Override
     public ProductResultDto getProductDetailList(Map<String, String> params) throws Exception {
@@ -147,6 +140,24 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    public ProductResultDto insertProductItem(ProductWHDto productWHDto) throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setStatus("201");
+        productResultDto.setMsg("재고를 성공적으로 추가하였습니다!");
+        try{
+            mapper.insertProductItem(productWHDto);
+        }catch(DuplicateKeyException e){
+            productResultDto.setStatus("501");
+            productResultDto.setMsg("중복된 코드가 존재합니다.");
+        } catch(DataIntegrityViolationException e){
+            productResultDto.setMsg("잘못된 데이터입니다.");
+            productResultDto.setStatus("502");
+        }finally{
+            return productResultDto;
+        }
+    }
+
+    @Override
     public ProductResultDto searchProductByCode(String productCode) throws Exception {
         ProductResultDto productResultDto = new ProductResultDto();
         productResultDto.setMsg("해당하는 제품이 없습니다.");
@@ -156,8 +167,12 @@ public class ProductServiceImpl implements ProductService{
         try{
             logger.debug("ProductResultDto searchProductByCode params : {}", productCode);
             productInfoDto = mapper.searchProductByCode(productCode);
+
             logger.debug("productInfoDto is null : {}", (productInfoDto == null));
+
             productResultDto.setData(productInfoDto);
+            productResultDto.setStatus("200");
+            productResultDto.setMsg("조회된 결과가 존재합니다.");
         }catch(Exception e){
             productResultDto.setMsg("처리 도중 에러가 발생하였습니다.");
             productResultDto.setStatus("500");

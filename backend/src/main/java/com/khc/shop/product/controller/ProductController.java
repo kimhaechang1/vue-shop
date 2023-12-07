@@ -1,7 +1,8 @@
 package com.khc.shop.product.controller;
 
-import com.khc.shop.product.model.ProductFromClientDto;
+import com.khc.shop.product.model.ProductDto;
 import com.khc.shop.product.model.ProductResultDto;
+import com.khc.shop.product.model.ProductWHDto;
 import com.khc.shop.product.model.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public class ProductController {
 
     private Logger logger = LoggerFactory.getLogger(ProductController.class);
 
+    // 제품목록 들고오기
     @GetMapping
     protected ResponseEntity<ProductResultDto> getProductList(@RequestParam Map<String, String> params) {
         ProductResultDto productResultDto = null;
@@ -37,19 +39,21 @@ public class ProductController {
         return new ResponseEntity<>(productResultDto, HttpStatus.OK);
     }
 
+    // 제품 추가하기
     @PostMapping
-    protected ResponseEntity<ProductResultDto> insertProduct(@RequestBody ProductFromClientDto productFromClientDto){
+    protected ResponseEntity<ProductResultDto> insertProduct(@RequestBody ProductDto productDto){
         ProductResultDto productResultDto = null;
-        logger.debug("ProductController.insertProduct requestBody : {}", productFromClientDto.toString());
+        logger.debug("ProductController.insertProduct requestBody : {}", productDto.toString());
         try{
-            productResultDto = service.productInsert(productFromClientDto);
+            productResultDto = service.insertProduct(productDto);
         }catch(Exception e){
             logger.debug("ProductController.insertProduct Exception 발생 : {}", e.toString());
         }
-        logger.debug("ProductController.insertProduct result : {}", productResultDto);
+        logger.debug("ProductController.insertProduct response : {}", productResultDto);
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
 
+    // 제품ID에 따른 재고 목록 들고오기
     @GetMapping("/{productId}")
     protected ResponseEntity<ProductResultDto> getProductDetailList(@RequestParam Map<String, String> params, @PathVariable("productId") String productId){
         ProductResultDto productResultDto = null;
@@ -63,6 +67,22 @@ public class ProductController {
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
 
+    // 제품ID에 대한 재고 추가하기
+    @PostMapping("/{productId}")
+    protected ResponseEntity<ProductResultDto> insertProductItem(@RequestBody ProductWHDto productWHDto){
+        ProductResultDto productResultDto = null;
+        try{
+            productResultDto = service.insertProductItem(productWHDto);
+        }catch(Exception e){
+            logger.debug("ProductController.insertProductItem Exception 발생 : {}", e.toString());
+        }
+        logger.debug("ProductController.insertProductItem response : {}", productResultDto.toString());
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
+
+
+    // 제품코드로 제품 및 재고 아이템 들고오기
     @GetMapping("/search/{productCode}")
     protected ResponseEntity<ProductResultDto> searchProductByCode(@PathVariable String productCode){
         ProductResultDto productResultDto  = null;
