@@ -1,6 +1,6 @@
 package com.khc.shop.product.model.service;
 
-import com.khc.shop.product.exception.DuplicatedProductException;
+import com.khc.shop.product.exception.DuplicatedProductNameException;
 import com.khc.shop.product.model.*;
 import com.khc.shop.product.model.mapper.ProductMapper;
 import org.slf4j.Logger;
@@ -61,6 +61,7 @@ public class ProductServiceImpl implements ProductService{
                 productListDto.setTotalPageCount(totalPageCount);
                 map.put("start", String.valueOf((pgno-1)*spp));
                 map.put("offset", String.valueOf(spp));
+                logger.debug("start : {} offset : {}",map.get("start"), map.get("offset"));
                 productList = mapper.getProductList(map);
                 productResultDto.setData(productListDto);
                 productResultDto.setStatus("200");
@@ -73,11 +74,12 @@ public class ProductServiceImpl implements ProductService{
             productListDto.setTotalItemCount(0);
             productListDto.setTotalPageCount(1);
             logger.debug("ProductService.getProductList Exception 발생 : {}", e.toString());
+            productResultDto.setMsg("제품 검색도중 문제가 발생하였습니다.");
+            productResultDto.setStatus("500");
+        }finally {
+            productListDto.setProductList(productList);
             return productResultDto;
-
         }
-        productListDto.setProductList(productList);
-        return productResultDto;
     }
 
     @Override
@@ -86,13 +88,13 @@ public class ProductServiceImpl implements ProductService{
         productResultDto.setMsg("제품을 성공적으로 등록하였습니다.");
         productResultDto.setStatus("201");
         try{
-            Integer productId = mapper.getProductIdbyproductName(productDto.getProductName());
-            if(productId != null) throw new DuplicatedProductException(productDto.getProductName());
+            Integer productId = mapper.getProductIdbyProductName(productDto.getProductName());
+            if(productId != null) throw new DuplicatedProductNameException(productDto.getProductName());
             mapper.insertProduct(productDto);
         }catch(SQLException e){
             productResultDto.setMsg("제품 등록에 실패하였습니다.");
             productResultDto.setStatus("500");
-        }catch(DuplicatedProductException e){
+        }catch(DuplicatedProductNameException e){
             productResultDto.setMsg(e.getMessage());
             productResultDto.setStatus(e.getStatus());
         } finally{
@@ -100,44 +102,29 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
-
     @Override
     public ProductResultDto getProductDetailList(Map<String, String> params) throws Exception {
         ProductResultDto productResultDto = new ProductResultDto();
         productResultDto.setStatus("210");
-        int count = 0;
-        ProductDetailListDto productDetailListDto = new ProductDetailListDto();
-        List<ProductDetailDto> productDetailList = Collections.emptyList();
-
-        productDetailListDto.setTotalItemCount(0);
-        productDetailListDto.setTotalPageCount(1);
+        productResultDto.setMsg("재고가 비었습니다");
+        List<ProductWHDto> productWHList = Collections.emptyList();
         try{
-            count = mapper.getProductDetailCountByproductId(params.get("productId"));
+            Integer count = mapper.getProductWHCountByProductId(params);
             if(count != 0){
-                productDetailListDto.setTotalItemCount(count);
-                int spp = Integer.parseInt(params.get("spp"));
-                int totalPageCount = count % spp == 0 ? count/spp : count/spp + 1;
-                productDetailListDto.setTotalPageCount(totalPageCount);
-                int start = Integer.parseInt(params.get("pgno"));
-                params.put("start", String.valueOf((start-1) * spp));
-                params.put("offset", params.get("spp"));
-                productDetailList = mapper.getProductDetailListByproductId(params);
+                productWHList = mapper.getProductWHListByProductId(params);
                 productResultDto.setStatus("200");
+                productResultDto.setMsg("검색된 재고는 총 "+count+"건 입니다.");
             }
-            StringBuilder sb = new StringBuilder();
-            sb.append("검색된 제품은 총 ").append(count).append("건 입니다.");
-            productResultDto.setMsg(sb.toString());
         }catch(Exception e){
-            productDetailListDto.setTotalItemCount(0);
-            productDetailListDto.setTotalPageCount(1);
+            productResultDto.setMsg("검색도중 문제가 발생하였습니다.");
             productResultDto.setStatus("500");
-            productResultDto.setMsg("처리 도중 에러가 발생하였습니다.");
+            productWHList = Collections.emptyList();
+        }finally{
+            productResultDto.setData(productWHList);
             return productResultDto;
         }
-        productDetailListDto.setProductDetailDtoList(productDetailList);
-        productResultDto.setData(productDetailListDto);
-        return productResultDto;
     }
+
 
     @Override
     public ProductResultDto insertProductItem(ProductWHDto productWHDto) throws Exception {
