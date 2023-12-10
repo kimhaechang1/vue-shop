@@ -99,6 +99,7 @@ public class ProductController {
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
 
+    // 제품 수정하기
     @PutMapping("/{productId}")
     protected ResponseEntity<ProductResultDto> updateProduct(@RequestBody ProductDto productDto, @PathVariable String productId){
         ProductResultDto productResultDto = null;
@@ -111,6 +112,7 @@ public class ProductController {
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
 
+    // 제품에 따른 재고 수정하기
     @PutMapping("/warehouse/{productCode}")
     protected ResponseEntity<ProductResultDto> updateProductItem(@RequestBody ProductWHDto productWHDto, @PathVariable String productCode){
         ProductResultDto productResultDto = null;
@@ -119,6 +121,30 @@ public class ProductController {
             productResultDto = service.updateProductItem(productWHDto);
         }catch(Exception e){
             logger.debug("ProductController.updateProductItem Exception 발생 : {}", e.toString());
+        }
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
+    // 제품 삭제하기
+    @DeleteMapping("{productId}")
+    protected ResponseEntity<ProductResultDto> deleteProduct(@PathVariable String productId){
+        ProductResultDto productResultDto = null;
+        try{
+            productResultDto = service.deleteProduct(Integer.parseInt(productId));
+        }catch(Exception e){
+            logger.debug("ProductController.deleteProduct Exception 발생 : {}", e.toString());
+        }
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
+    // 제품에 따른 재고 삭제하기
+    @DeleteMapping("/warehouse/{productCode}")
+    protected ResponseEntity<ProductResultDto> deleteProductItem(@PathVariable String productCode){
+        ProductResultDto productResultDto = null;
+        try{
+            productResultDto = service.deleteProductItem(productCode);
+        }catch(Exception e){
+            logger.debug("ProductController.deleteProductItem Exception 발생 : {}", e.toString());
         }
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }

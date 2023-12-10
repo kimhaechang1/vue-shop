@@ -22,4 +22,6 @@ public interface ProductMapper {
     public void updateProduct(ProductDto productDto) throws SQLException;
     public void updateProductItem(ProductWHDto productWHDto) throws SQLException;
     public int getProductCountByProductId(int productId) throws SQLException;
+    public void deleteProduct(int productId) throws SQLException;
+    public void deleteProductItem(String productCode) throws SQLException;
 }

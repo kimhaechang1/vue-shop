@@ -6,6 +6,7 @@ import com.khc.shop.product.model.ProductDto;
 import com.khc.shop.product.model.ProductInfoDto;
 import com.khc.shop.product.model.ProductWHDto;
 import com.khc.shop.product.model.mapper.ProductMapper;
+import org.junit.Before;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -261,6 +263,87 @@ public class ProductAPITest {
             fail("productItem update fail !!!");
         }
    }
+
+   public int setupBeforeDeleteProduct() throws Exception{
+        ProductDto productDto = new ProductDto();
+        productDto.setProductBrand("NIKE");
+        productDto.setProductName("DELETE TEST shoes");
+        productDto.setProductDescription("TEST description");
+        productMapper.insertProduct(productDto);
+        ProductWHDto productWHDto = new ProductWHDto();
+        productWHDto.setProductSize(260);
+        int id = productMapper.getProductIdbyProductName(productDto.getProductName());
+        productWHDto.setProductId(id);
+        for(int i= 0;i<10;i++){
+            productWHDto.setProductCode("DELETETEST"+i);
+            productMapper.insertProductItem(productWHDto);
+        }
+
+        return id;
+   }
+
+   @Test
+   @DisplayName("delete product test")
+   public void deleteProductTest() throws Exception{
+
+        int productId = setupBeforeDeleteProduct();
+
+        int cnt = productMapper.getProductCountByProductId(productId);
+        Map<String, String> map = new HashMap<>();
+        map.put("productId", String.valueOf(productId));
+        if(cnt == 0){
+            fail("delete product test before insert fail !!!");
+            return;
+        }
+        String expectedStatus = "200";
+        mockMvc.perform(
+                delete("/product/"+productId)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(expectedStatus));
+
+       int productItemCnt = productMapper.getProductWHCountByProductId(map);
+       cnt = productMapper.getProductCountByProductId(productId);
+       if(productItemCnt != 0 || cnt != 0) {
+           fail("delete fail!!!");
+       }
+   }
+
+   public String beforeDeleteProductItem() throws Exception{
+        ProductWHDto productWHDto = new ProductWHDto();
+        productWHDto.setProductId(33);
+        productWHDto.setProductSize(260);
+        productWHDto.setProductCode("WILLDELETECODE");
+        productMapper.insertProductItem(productWHDto);
+        return productWHDto.getProductCode();
+   }
+
+   @Test
+   @DisplayName("delete productItem test")
+   public void deleteProductItemTest() throws Exception{
+        String productCode = beforeDeleteProductItem();
+        ProductInfoDto productInfoDto = productMapper.searchProductByCode(productCode);
+        String expectedStatus = "200";
+       if(productInfoDto == null){
+           fail("delete product test before insert fail !!!");
+           return;
+       }
+        mockMvc.perform(
+                delete("/product/warehouse/"+productCode)
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(expectedStatus));
+        productInfoDto = productMapper.searchProductByCode(productCode);
+
+        if(productInfoDto != null){
+            fail("productItem delete fail!!!");
+        }
+   }
+
+
+
 
 
 }

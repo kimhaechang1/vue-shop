@@ -214,5 +214,35 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
+    @Override
+    public ProductResultDto deleteProduct(int productId) throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setMsg("해당 제품이 성공적으로 삭제되었습니다.");
+        productResultDto.setStatus("200");
+        try{
+            mapper.deleteProduct(productId);
+        }catch(Exception e){
+            productResultDto.setStatus("500");
+            productResultDto.setMsg("제품 삭제 도중 에러가 발생하였습니다.");
+        }finally{
+            return productResultDto;
+        }
+    }
+
+    @Override
+    public ProductResultDto deleteProductItem(String productCode) throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setMsg("해당 제품에 대한 재고가 성공적으로 삭제되었습니다.");
+        productResultDto.setStatus("200");
+        try{
+            mapper.deleteProductItem(productCode);
+        }catch(Exception e){
+            productResultDto.setStatus("500");
+            productResultDto.setMsg("제품에 대한 재고 삭제 도중 에러가 발생하였습니다.");
+        }finally{
+            return productResultDto;
+        }
+    }
+
 
 }

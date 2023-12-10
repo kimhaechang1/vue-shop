@@ -129,4 +129,15 @@
         FROM product
         WHERE product_id = ${productId}
     </select>
+
+    <delete id="deleteProduct" parameterType="int">
+        DELETE
+        FROM product
+        WHERE product_id = ${productId}
+    </delete>
+    <delete id="deleteProductItem" parameterType="String">
+        DELETE
+        FROM product_warehouse
+        WHERE product_code = '${productCode}'
+    </delete>
 </mapper>

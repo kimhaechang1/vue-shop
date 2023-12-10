@@ -15,4 +15,6 @@ public interface ProductService {
     public ProductResultDto searchProductByCode(String productCode) throws Exception;
     public ProductResultDto updateProduct(ProductDto productDto) throws Exception;
     public ProductResultDto updateProductItem(ProductWHDto productWHDto) throws Exception;
+    public ProductResultDto deleteProduct(int productId) throws Exception;
+    public ProductResultDto deleteProductItem(String productCode) throws Exception;
 }
