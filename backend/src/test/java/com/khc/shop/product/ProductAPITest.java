@@ -3,6 +3,7 @@ package com.khc.shop.product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khc.shop.product.controller.ProductController;
 import com.khc.shop.product.model.ProductDto;
+import com.khc.shop.product.model.ProductInfoDto;
 import com.khc.shop.product.model.ProductWHDto;
 import com.khc.shop.product.model.mapper.ProductMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -15,11 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -86,7 +87,7 @@ public class ProductAPITest {
         ProductWHDto productWHDto = new ProductWHDto();
         productWHDto.setProductSize(270);
         productWHDto.setProductCode("TEST01");
-        productWHDto.setProductId(37);
+        productWHDto.setProductId(33);
         ObjectMapper mapper =new ObjectMapper();
         mockMvc.perform(
                 post("/product/"+productWHDto.getProductId())
@@ -163,6 +164,7 @@ public class ProductAPITest {
                 .andExpect(jsonPath("$.status").value(expectedStatus))
                 .andExpect(jsonPath("$.data.totalItemCount").value(expectedTotalItemCount))
                 .andExpect(jsonPath("$.data.totalPageCount").value(expectedTotalPageCount));
+
     }
 
 
@@ -201,6 +203,63 @@ public class ProductAPITest {
                 .andExpect(jsonPath("$.status").value(expectedStatus))
                 .andExpect(jsonPath("$.data.size()").value(expectedTotalItemCount));
 
+   }
+
+   @Test
+   @DisplayName("product Update Test")
+   public void productUpdateTest() throws Exception{
+        ProductDto productDto = new ProductDto();
+        productDto.setProductId(33);
+        productDto.setProductDescription("update test description1");
+        productDto.setProductName("update test1");
+        productDto.setProductBrand("NIKE");
+        ObjectMapper mapper = new ObjectMapper();
+        int cnt = productMapper.getProductCountByProductId(productDto.getProductId());
+        String expectedStatus = cnt == 0 ? "502" : "200";
+        mockMvc.perform(
+                put("/product/"+productDto.getProductId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(productDto))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(expectedStatus));
+        Map<String, String> map = new HashMap<>();
+        map.put("word",productDto.getProductName());
+        cnt = productMapper.getProductCount(map);
+        if(cnt != 1){
+            fail("product update fail!!!");
+        }
+   }
+
+   @Test
+   @DisplayName("productItem update Test")
+   public void productItemUpdateTest() throws Exception{
+        String productCode = "TEST01";
+        ProductWHDto productWHDto = new ProductWHDto();
+        productWHDto.setProductCode(productCode);
+        productWHDto.setProductSize(270);
+        productWHDto.setProductId(33);
+        ObjectMapper mapper =new ObjectMapper();
+        int cnt = productMapper.getProductCountByProductId(productWHDto.getProductId());
+        String expectedStatus = cnt == 0 ? "502" : "200";
+        mockMvc.perform(
+                put("/product/warehouse/"+productCode)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(productWHDto))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(expectedStatus));
+        if(cnt == 0) return;
+        Map<String, String> map = new HashMap<>();
+        map.put("productId", String.valueOf(productWHDto.getProductId()));
+        ProductInfoDto productInfoDto = productMapper.searchProductByCode(productCode);
+        int id = productInfoDto.getProductId();
+        int size = productInfoDto.getProductSize();
+        if(size != productWHDto.getProductSize() || id != productWHDto.getProductId()){
+            fail("productItem update fail !!!");
+        }
    }
 
 

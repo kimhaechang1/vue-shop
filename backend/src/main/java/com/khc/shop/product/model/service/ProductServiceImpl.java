@@ -1,6 +1,7 @@
 package com.khc.shop.product.model.service;
 
 import com.khc.shop.product.exception.DuplicatedProductNameException;
+import com.khc.shop.product.exception.NoSuchItemException;
 import com.khc.shop.product.model.*;
 import com.khc.shop.product.model.mapper.ProductMapper;
 import org.slf4j.Logger;
@@ -168,4 +169,50 @@ public class ProductServiceImpl implements ProductService{
         }
         return productResultDto;
     }
+
+    @Override
+    public ProductResultDto updateProduct(ProductDto productDto) throws Exception {
+        ProductResultDto productResultDto  = new ProductResultDto();
+        productResultDto.setStatus("200");
+        productResultDto.setMsg("업데이트에 성공하였습니다.");
+        try{
+            int cnt = mapper.getProductCountByProductId(productDto.getProductId());
+            if(cnt == 0) throw new NoSuchItemException();
+            mapper.updateProduct(productDto);
+        }catch(NoSuchItemException e){
+            logger.debug("exception : {}", e.toString());
+            productResultDto.setStatus(e.getStatus());
+            productResultDto.setMsg(e.getMessage());
+        } catch(Exception e){
+            logger.debug("exception : {}", e.toString());
+            productResultDto.setStatus("500");
+            productResultDto.setMsg("업데이트 도중 에러가 발생하였습니다.");
+        }finally{
+            return productResultDto;
+        }
+    }
+
+    @Override
+    public ProductResultDto updateProductItem(ProductWHDto productWHDto) throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setStatus("200");
+        productResultDto.setMsg("업데이트에 성공하였습니다.");
+        try{
+            mapper.updateProductItem(productWHDto);
+
+        }catch(DataIntegrityViolationException e) {
+            logger.debug("exception : {}", e.toString());
+            productResultDto.setMsg("잘못된 데이터 입니다.");
+            productResultDto.setStatus("502");
+        } catch(Exception e){
+            logger.debug("exception : {}", e.toString());
+            productResultDto.setStatus("500");
+            productResultDto.setMsg("업데이트 도중 에러가 발생하였습니다.");
+        }
+        finally{
+            return productResultDto;
+        }
+    }
+
+
 }

@@ -19,4 +19,7 @@ public interface ProductMapper {
     public int getProductWHCountByProductId(Map<String, String> params) throws SQLException;
     public Integer getProductIdbyProductName(String productName) throws SQLException;
     public ProductInfoDto searchProductByCode(String productCode) throws SQLException;
+    public void updateProduct(ProductDto productDto) throws SQLException;
+    public void updateProductItem(ProductWHDto productWHDto) throws SQLException;
+    public int getProductCountByProductId(int productId) throws SQLException;
 }

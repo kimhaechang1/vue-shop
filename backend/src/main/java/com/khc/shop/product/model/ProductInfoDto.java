@@ -10,7 +10,7 @@ public class ProductInfoDto {
     private String productBrand;
     private String productDescription;
     private String productCode;
-    private String productSize;
+    private Integer productSize;
     private String productDate;
 
     public Integer getProductId() {
@@ -61,11 +61,11 @@ public class ProductInfoDto {
         this.productCode = productCode;
     }
 
-    public String getProductSize() {
+    public Integer getProductSize() {
         return productSize;
     }
 
-    public void setProductSize(String productSize) {
+    public void setProductSize(Integer productSize) {
         this.productSize = productSize;
     }
 

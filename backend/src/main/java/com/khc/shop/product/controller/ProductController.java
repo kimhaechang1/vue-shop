@@ -98,4 +98,28 @@ public class ProductController {
 
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
+
+    @PutMapping("/{productId}")
+    protected ResponseEntity<ProductResultDto> updateProduct(@RequestBody ProductDto productDto, @PathVariable String productId){
+        ProductResultDto productResultDto = null;
+        try{
+            productDto.setProductId(Integer.parseInt(productId));
+            productResultDto = service.updateProduct(productDto);
+        }catch(Exception e){
+            logger.debug("ProductController.updateProduct Exception 발생 : {}", e.toString());
+        }
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/warehouse/{productCode}")
+    protected ResponseEntity<ProductResultDto> updateProductItem(@RequestBody ProductWHDto productWHDto, @PathVariable String productCode){
+        ProductResultDto productResultDto = null;
+        try{
+            productWHDto.setProductCode(productCode);
+            productResultDto = service.updateProductItem(productWHDto);
+        }catch(Exception e){
+            logger.debug("ProductController.updateProductItem Exception 발생 : {}", e.toString());
+        }
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
 }

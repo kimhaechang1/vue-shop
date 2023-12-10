@@ -13,4 +13,6 @@ public interface ProductService {
     public ProductResultDto getProductDetailList(Map<String, String> params) throws Exception;
     public ProductResultDto insertProductItem(ProductWHDto productWHDto) throws Exception;
     public ProductResultDto searchProductByCode(String productCode) throws Exception;
+    public ProductResultDto updateProduct(ProductDto productDto) throws Exception;
+    public ProductResultDto updateProductItem(ProductWHDto productWHDto) throws Exception;
 }

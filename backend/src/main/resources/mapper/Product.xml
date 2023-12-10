@@ -108,4 +108,25 @@
         on d.product_id = p.product_id
         where product_code = '${productCode}'
     </select>
+
+    <update id="updateProduct" parameterType="productDto">
+        UPDATE
+            product
+        SET product_name = '${productName}', product_img = '${productImg}', product_brand = '${productBrand}', product_description = '${productDescription}'
+        WHERE product_id = '${productId}'
+    </update>
+
+    <update id="updateProductItem" parameterType="productWHDto">
+        UPDATE
+            product_warehouse
+        SET product_id = '${productId}', product_size = '${productSize}'
+        WHERE product_code = '${productCode}'
+    </update>
+
+    <select id="getProductCountByProductId" parameterType="int">
+        SELECT
+            COUNT(product_id)
+        FROM product
+        WHERE product_id = ${productId}
+    </select>
 </mapper>
