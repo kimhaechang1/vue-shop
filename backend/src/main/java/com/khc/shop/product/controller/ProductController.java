@@ -54,7 +54,7 @@ public class ProductController {
     }
 
     // 제품ID에 따른 재고 목록 들고오기
-    @GetMapping("/{productId}")
+    @GetMapping("/warehouse/{productId}")
     protected ResponseEntity<ProductResultDto> getProductDetailList(@RequestParam Map<String, String> params, @PathVariable("productId") String productId){
 
         ProductResultDto productResultDto = null;
