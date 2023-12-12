@@ -6,6 +6,7 @@ public class ProductDto {
     private String productImg;
     private String productBrand;
     private String productDescription;
+    private int productCost;
 
     public int getProductId() {
         return productId;
@@ -47,6 +48,14 @@ public class ProductDto {
         this.productDescription = productDescription;
     }
 
+    public int getProductCost() {
+        return productCost;
+    }
+
+    public void setProductCost(int productCost) {
+        this.productCost = productCost;
+    }
+
     @Override
     public String toString() {
         return "ProductDto{" +
@@ -55,6 +64,7 @@ public class ProductDto {
                 ", productImg='" + productImg + '\'' +
                 ", productBrand='" + productBrand + '\'' +
                 ", productDescription='" + productDescription + '\'' +
+                ", productCost=" + productCost +
                 '}';
     }
 }
