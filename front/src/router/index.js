@@ -13,7 +13,7 @@ const router = createRouter({
       path : "/shop",
       name : "shop",
       component : ShopView,
-      redirect : { name : "shop-list", query : { pgno : 1, spp : 10} },
+      redirect : { name : "shop-list", query : { pgno : 1, spp : 10, brand : "", word : ""} },
       children : [
         { path : "list", name : "shop-list", component : () => import('../components/shop/ShopItemList.vue') }
       ]
