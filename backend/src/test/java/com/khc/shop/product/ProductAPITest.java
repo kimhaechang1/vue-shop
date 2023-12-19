@@ -42,7 +42,7 @@ public class ProductAPITest {
     @DisplayName("Product Insert Test")
     void productInsertTest() throws Exception{
         ProductDto productDto = new ProductDto();
-        productDto.setProductBrand("NIKE");
+        productDto.setProductBrand("1");
         productDto.setProductDescription("test description");
         productDto.setProductName("test shoes");
         ObjectMapper mapper = new ObjectMapper();
@@ -56,7 +56,7 @@ public class ProductAPITest {
                 .andExpect(jsonPath("$.status").value("201"));
 
         mockMvc.perform(
-                        get("/product?brand="+productDto.getProductBrand()+"&word="+productDto.getProductName())
+                        get("/product?brand="+1+"&word="+productDto.getProductName())
 
                 )
                 .andExpect(status().isOk())
