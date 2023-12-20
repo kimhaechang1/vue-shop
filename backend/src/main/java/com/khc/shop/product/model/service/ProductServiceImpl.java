@@ -1,6 +1,6 @@
 package com.khc.shop.product.model.service;
 
-import com.khc.shop.product.exception.DuplicatedProductNameException;
+import com.khc.shop.product.exception.DuplicatedNameException;
 import com.khc.shop.product.exception.NoSuchItemException;
 import com.khc.shop.product.model.*;
 import com.khc.shop.product.model.mapper.ProductMapper;
@@ -90,12 +90,12 @@ public class ProductServiceImpl implements ProductService{
         productResultDto.setStatus("201");
         try{
             Integer productId = mapper.getProductIdbyProductName(productDto.getProductName());
-            if(productId != null) throw new DuplicatedProductNameException(productDto.getProductName());
+            if(productId != null) throw new DuplicatedNameException(productDto.getProductName());
             mapper.insertProduct(productDto);
         }catch(SQLException e){
             productResultDto.setMsg("제품 등록에 실패하였습니다.");
             productResultDto.setStatus("500");
-        }catch(DuplicatedProductNameException e){
+        }catch(DuplicatedNameException e){
             productResultDto.setMsg(e.getMessage());
             productResultDto.setStatus(e.getStatus());
         } finally{
@@ -244,5 +244,50 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
+    @Override
+    public ProductResultDto insertBrand(ProductBrandDto productBrandDto) throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setMsg("브랜드 등록에 성공하였습니다");
+        productResultDto.setStatus("201");
+        try{
+            Integer cnt = mapper.countByBrandName(productBrandDto.getProductBrandName());
+            if(cnt == null || cnt == 0){
+                mapper.insertBrand(productBrandDto);
+            }else{
+                throw new DuplicatedNameException(productBrandDto.getProductBrandName());
+            }
+        }catch(DuplicatedNameException e){
+            productResultDto.setStatus(e.getStatus());
+            productResultDto.setMsg(e.getMessage());
+        }catch(Exception e){
+            logger.debug("Exception 발생 : {}", e.toString());
+            e.printStackTrace();
+            productResultDto.setStatus("500");
+            productResultDto.setMsg("브랜드 등록도중 에러가 발생하였습니다.");
+        }finally {
+            return productResultDto;
+        }
+    }
 
+    @Override
+    public ProductResultDto getBrandList() throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setStatus("210");
+        List<ProductBrandDto> productBrandDtoList = Collections.emptyList();
+        try{
+            productBrandDtoList = mapper.getBrandList();
+            int totalCnt = productBrandDtoList.size();
+            if(totalCnt > 0) {
+                productResultDto.setStatus("200");
+            }
+            productResultDto.setMsg("총 "+totalCnt+"개 의 브랜드가 검색되었습니다.");
+        }catch(Exception e){
+            productBrandDtoList = Collections.emptyList();
+            productResultDto.setStatus("500");
+            productResultDto.setMsg("브랜드 목록 불러오기 중 에러가 발생하였습니다.");
+        }finally{
+            productResultDto.setData(productBrandDtoList);
+            return productResultDto;
+        }
+    }
 }

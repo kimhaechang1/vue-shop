@@ -2,6 +2,7 @@ package com.khc.shop.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khc.shop.product.controller.ProductController;
+import com.khc.shop.product.model.ProductBrandDto;
 import com.khc.shop.product.model.ProductDto;
 import com.khc.shop.product.model.ProductInfoDto;
 import com.khc.shop.product.model.ProductWHDto;
@@ -339,6 +340,41 @@ public class ProductAPITest {
 
         if(productInfoDto != null){
             fail("productItem delete fail!!!");
+        }
+   }
+
+   @Test
+   @DisplayName("insert Brand Test")
+   public void insertBrandTest() throws Exception{
+        ProductBrandDto productBrandDto = new ProductBrandDto();
+        productBrandDto.setProductBrandName("TEST BRAND");
+        ObjectMapper mapper = new ObjectMapper();
+        List<ProductBrandDto> productBrandDtoList = productMapper.getBrandList();
+        String expectedStatus = "201";
+        for(ProductBrandDto brandDto : productBrandDtoList){
+            if(brandDto.getProductBrandName().equals(productBrandDto.getProductBrandName())){
+                expectedStatus = "501";
+            }
+        }
+        mockMvc.perform(
+                post("/product/brand")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(productBrandDto))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(expectedStatus));
+        if("201".equals(expectedStatus)){
+            productBrandDtoList = productMapper.getBrandList();
+            boolean isFind = false;
+            for(ProductBrandDto brandDto : productBrandDtoList){
+                if(brandDto.getProductBrandName().equals(productBrandDto.getProductBrandName())){
+                    isFind = true;
+                }
+            }
+            if(!isFind){
+                fail("insert fail!!! : 조회된 리스트에 "+productBrandDto.getProductBrandName()+"가 없습니다.");
+            }
         }
    }
 

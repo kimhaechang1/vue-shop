@@ -30,6 +30,11 @@
         <result column="product_date" property="productDate"></result>
     </resultMap>
 
+    <resultMap id="productBrand" type="productBrandDto">
+        <result column="product_brand_id" property="productBrandId"></result>
+        <result column="product_brand_name" property="productBrandName"></result>
+    </resultMap>
+
     <sql id="searchProduct">
         <if test='brand != null and !"".equals(brand)'>
             AND product_brand LIKE CONCAT('%','${brand}','%')
@@ -144,4 +149,24 @@
         FROM product_warehouse
         WHERE product_code = '${productCode}'
     </delete>
+    <select id="countByBrandName" parameterType="String" resultType="java.lang.Integer">
+        SELECT
+            COUNT(product_brand_id)
+        FROM
+            product_brand
+        where product_brand_name like CONCAT('%','${productBrandName}','%')
+    </select>
+    <insert id="insertBrand" parameterType="productBrandDto" >
+        INSERT INTO product_brand
+            (product_brand_name)
+        VALUES ('${productBrandName}')
+    </insert>
+    <select id="getBrandList" resultMap="productBrand">
+        SELECT
+            product_brand_id, product_brand_name
+        FROM
+            product_brand
+        WHERE
+            1=1
+    </select>
 </mapper>

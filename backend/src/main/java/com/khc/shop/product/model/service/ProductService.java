@@ -1,6 +1,7 @@
 package com.khc.shop.product.model.service;
 
 
+import com.khc.shop.product.model.ProductBrandDto;
 import com.khc.shop.product.model.ProductDto;
 import com.khc.shop.product.model.ProductResultDto;
 import com.khc.shop.product.model.ProductWHDto;
@@ -17,4 +18,6 @@ public interface ProductService {
     public ProductResultDto updateProductItem(ProductWHDto productWHDto) throws Exception;
     public ProductResultDto deleteProduct(int productId) throws Exception;
     public ProductResultDto deleteProductItem(String productCode) throws Exception;
+    public ProductResultDto insertBrand(ProductBrandDto productBrandDto) throws Exception;
+    public ProductResultDto getBrandList() throws Exception;
 }

@@ -1,5 +1,6 @@
 package com.khc.shop.product.controller;
 
+import com.khc.shop.product.model.ProductBrandDto;
 import com.khc.shop.product.model.ProductDto;
 import com.khc.shop.product.model.ProductResultDto;
 import com.khc.shop.product.model.ProductWHDto;
@@ -146,6 +147,30 @@ public class ProductController {
         }catch(Exception e){
             logger.debug("ProductController.deleteProductItem Exception 발생 : {}", e.toString());
         }
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
+    // 브랜드 추가하기
+    @PostMapping("/brand")
+    protected ResponseEntity<ProductResultDto> insertBrand(@RequestBody ProductBrandDto productbrandDto){
+        ProductResultDto productResultDto = null;
+        try{
+            productResultDto = service.insertBrand(productbrandDto);
+        }catch(Exception e){
+            logger.debug("ProductController.insertBrand Exception 발생 : {}", e.toString());
+        }
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/brand")
+    protected ResponseEntity<ProductResultDto> getBrandList(){
+        ProductResultDto productResultDto = null;
+        try{
+            productResultDto = service.getBrandList();
+        }catch(Exception e){
+            logger.debug("ProductController.getBrandList Exception 발생 : {}", e.toString());
+        }
+
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
 }

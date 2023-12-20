@@ -1,5 +1,6 @@
 package com.khc.shop.product.model.mapper;
 
+import com.khc.shop.product.model.ProductBrandDto;
 import com.khc.shop.product.model.ProductDto;
 import com.khc.shop.product.model.ProductInfoDto;
 import com.khc.shop.product.model.ProductWHDto;
@@ -24,4 +25,7 @@ public interface ProductMapper {
     public int getProductCountByProductId(int productId) throws SQLException;
     public void deleteProduct(int productId) throws SQLException;
     public void deleteProductItem(String productCode) throws SQLException;
+    public Integer countByBrandName(String brandName) throws SQLException;
+    public void insertBrand(ProductBrandDto productBrandDto) throws SQLException;
+    public List<ProductBrandDto> getBrandList() throws SQLException;
 }
