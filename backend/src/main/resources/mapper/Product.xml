@@ -59,7 +59,7 @@
     <select id="getProductList" parameterType="map" resultMap="product">
         SELECT
             product_id, product_name, product_img, product_brand_name, product_cost
-        FROM product INNER JOIN  product_brand
+        FROM product LEFT JOIN  product_brand
         ON product.product_brand = product_brand.product_brand_id
         WHERE 1 = 1
         <include refid="searchProduct"></include>
@@ -111,9 +111,9 @@
     <select id="searchProductByCode" parameterType="String" resultMap="productInfo">
         SELECT
             p.product_id, p.product_name, p.product_img, b.product_brand_name, p.product_description, d.product_code, d.product_size, d.product_date
-        FROM product_warehouse d inner join product p
+        FROM product_warehouse d INNER JOIN product p
         on d.product_id = p.product_id
-        inner join product_brand b
+        LEFT JOIN product_brand b
         on p.product_brand = d.product_brand_id
         where product_code = '${productCode}'
     </select>
