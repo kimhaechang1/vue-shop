@@ -7,7 +7,7 @@ import com.khc.shop.product.model.ProductDto;
 import com.khc.shop.product.model.ProductInfoDto;
 import com.khc.shop.product.model.ProductWHDto;
 import com.khc.shop.product.model.mapper.ProductMapper;
-import org.junit.Before;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +70,7 @@ public class ProductAPITest {
     @DisplayName("Product Insert But Duplicated ProductName Test")
     public void productInsertDuplicatedProductName() throws Exception{
         ProductDto productDto = new ProductDto();
-        productDto.setProductBrand("NIKE");
+        productDto.setProductBrand("1");
         productDto.setProductDescription("test description");
         productDto.setProductName("test shoes");
         ObjectMapper mapper = new ObjectMapper();
@@ -215,7 +215,7 @@ public class ProductAPITest {
         productDto.setProductId(33);
         productDto.setProductDescription("update test description1");
         productDto.setProductName("update test1");
-        productDto.setProductBrand("NIKE");
+        productDto.setProductBrand("1");
         ObjectMapper mapper = new ObjectMapper();
         int cnt = productMapper.getProductCountByProductId(productDto.getProductId());
         String expectedStatus = cnt == 0 ? "502" : "200";
@@ -267,7 +267,7 @@ public class ProductAPITest {
 
    public int setupBeforeDeleteProduct() throws Exception{
         ProductDto productDto = new ProductDto();
-        productDto.setProductBrand("NIKE");
+        productDto.setProductBrand("1");
         productDto.setProductName("DELETE TEST shoes");
         productDto.setProductDescription("TEST description");
         productMapper.insertProduct(productDto);
