@@ -30,5 +30,6 @@ public interface ProductMapper {
     public List<ProductBrandDto> getBrandList() throws SQLException;
     public void updateBrand(ProductBrandDto productBrandDto) throws SQLException;
     public String getProductBrandNameByBrandId(String productBrandId) throws SQLException;
+    public void deleteBrand(String productBrandId) throws SQLException;
 
 }

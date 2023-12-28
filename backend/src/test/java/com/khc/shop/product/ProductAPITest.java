@@ -2,14 +2,12 @@ package com.khc.shop.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khc.shop.product.controller.ProductController;
-import com.khc.shop.product.model.ProductBrandDto;
-import com.khc.shop.product.model.ProductDto;
-import com.khc.shop.product.model.ProductInfoDto;
-import com.khc.shop.product.model.ProductWHDto;
+import com.khc.shop.product.model.*;
 import com.khc.shop.product.model.mapper.ProductMapper;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
+
 @AutoConfigureMockMvc // MockMvc 객체를 주입받을 수 있음
 public class ProductAPITest {
 
@@ -408,8 +407,53 @@ public class ProductAPITest {
                 .andExpect(jsonPath("$.status").value(expectedStatus));
    }
 
+   public void beforeDelBrandTest() throws Exception{
+        ProductBrandDto productBrandDto = new ProductBrandDto();
+        productBrandDto.setProductBrandName("DELETE BRAND");
+        productMapper.insertBrand(productBrandDto);
+        List<ProductBrandDto> brandList = productMapper.getBrandList();
+        String id = "";
+        for(ProductBrandDto dto : brandList){
+            if(dto.getProductBrandName().equals(productBrandDto.getProductBrandName())){
+                id = dto.getProductBrandId();
+            }
+        }
+        ProductDto productDto = new ProductDto();
+        productDto.setProductCost(21312314);
+        productDto.setProductName("TEST PROD WITH TEST BRAND");
+        productDto.setProductBrand(id);
+        productMapper.insertProduct(productDto);
+   }
 
 
+   @Test
+   @DisplayName("delete brand test")
+   public void productBrandDeleteTest() throws Exception{
+       beforeDelBrandTest();
+       List<ProductBrandDto> list = productMapper.getBrandList();
+       String willDelId = "";
+       String expectedStatus = "200";
+       for(ProductBrandDto productBrandDto : list){
+           if("DELETE BRAND".equals(productBrandDto.getProductBrandName())){
+                willDelId = productBrandDto.getProductBrandId();
+           }
+       }
+       if("".equals(willDelId)){
+           willDelId = "99";
+           expectedStatus = "502";
+       }
+       mockMvc.perform(
+               delete("/product/brand/"+willDelId)
 
+       )
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(jsonPath("$.status").value(expectedStatus));
 
+       HashMap<String, String> params = new HashMap<>();
+       params.put("word", "TEST PROD WITH TEST BRAND");
+       List<ProductDto> productList = productMapper.getProductList(params);
+       ProductDto resDto = productList.get(0);
+       assert(resDto.getProductBrand() == null);
+   }
 }

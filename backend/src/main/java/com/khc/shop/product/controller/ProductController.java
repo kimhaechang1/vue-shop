@@ -161,7 +161,7 @@ public class ProductController {
         }
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
-
+    // 브랜드리스트 출력
     @GetMapping("/brand")
     protected ResponseEntity<ProductResultDto> getBrandList(){
         ProductResultDto productResultDto = null;
@@ -173,6 +173,8 @@ public class ProductController {
 
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
+
+    // 브랜드 아이디 값을 이용하여 브랜드 업데이트
     @PutMapping("/brand/{productBrandId}")
     protected ResponseEntity<ProductResultDto> updateBrand(@RequestBody ProductBrandDto productBrandDto){
         ProductResultDto productResultDto = null;
@@ -184,5 +186,18 @@ public class ProductController {
         }
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
+
+    // 브랜드 아이디값을 이용하여 브랜드 삭제
+    @DeleteMapping("/brand/{productBrandId}")
+    protected ResponseEntity<ProductResultDto> deleteBrand(@PathVariable String productBrandId){
+        ProductResultDto productResultDto = null;
+        try{
+            productResultDto = service.deleteBrand(productBrandId);
+        }catch(Exception e){
+            logger.error("error occurred ", e);
+        }
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
 
 }

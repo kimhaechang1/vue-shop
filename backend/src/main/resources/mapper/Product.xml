@@ -185,4 +185,10 @@
         WHERE
             1=1 AND product_brand_id = '${productBrandId}'
     </select>
+
+    <delete id="deleteBrand" parameterType="String">
+        DELETE
+        FROM product_brand
+        WHERE product_brand_id ='${productBrandId}'
+    </delete>
 </mapper>

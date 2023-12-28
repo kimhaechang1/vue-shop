@@ -309,10 +309,31 @@ public class ProductServiceImpl implements ProductService{
             productResultDto.setMsg(e.getMessage());
             productResultDto.setStatus(e.getStatus());
         }catch(Exception e){
-            e.printStackTrace();
+            logger.error("exception occurred : ", e);
             productResultDto.setStatus("500");
             productResultDto.setMsg("브랜드 업데이트 도중 에러가 발생하였습니다.");
         }finally {
+            return productResultDto;
+        }
+    }
+
+    @Override
+    public ProductResultDto deleteBrand(String brandId) throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setStatus("200");
+        productResultDto.setMsg("성공적으로 삭제 되었습니다.");
+        try{
+            String resultName = mapper.getProductBrandNameByBrandId(brandId);
+            if(resultName == null) throw new NoSuchItemException();
+            mapper.deleteBrand(brandId);
+        }catch(NoSuchItemException e){
+            productResultDto.setMsg(e.getMessage());
+            productResultDto.setStatus(e.getStatus());
+        }catch(Exception e){
+            logger.error("exception occurred : ", e);
+            productResultDto.setMsg("500");
+            productResultDto.setStatus("브랜드 삭제 도중 에러가 발생하였습니다.");
+        }finally{
             return productResultDto;
         }
     }
