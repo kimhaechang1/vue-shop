@@ -173,4 +173,16 @@ public class ProductController {
 
         return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
     }
+    @PutMapping("/brand/{productBrandId}")
+    protected ResponseEntity<ProductResultDto> updateBrand(@RequestBody ProductBrandDto productBrandDto){
+        ProductResultDto productResultDto = null;
+        try{
+            productResultDto = service.updateBrand(productBrandDto);
+            logger.debug("result data : {}", productResultDto);
+        }catch(Exception e){
+            logger.debug("ProductController.updateBrand Exception 발생 : {}", e.toString());
+        }
+        return new ResponseEntity<ProductResultDto>(productResultDto, HttpStatus.OK);
+    }
+
 }

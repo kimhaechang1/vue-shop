@@ -290,4 +290,30 @@ public class ProductServiceImpl implements ProductService{
             return productResultDto;
         }
     }
+
+    @Override
+    public ProductResultDto updateBrand(ProductBrandDto productBrandDto) throws Exception {
+        ProductResultDto productResultDto = new ProductResultDto();
+        productResultDto.setStatus("200");
+        productResultDto.setMsg("업데이트에 성공하였습니다.");
+        try{
+            String name = mapper.getProductBrandNameByBrandId(productBrandDto.getProductBrandId());
+            if(name == null || "".equals(name)) throw new NoSuchItemException();
+            Integer cnt = mapper.countByBrandName(productBrandDto.getProductBrandName());
+            if(cnt > 0) throw new DuplicatedNameException(productBrandDto.getProductBrandName());
+            mapper.updateBrand(productBrandDto);
+        }catch(NoSuchItemException e){
+            productResultDto.setMsg(e.getMessage());
+            productResultDto.setStatus(e.getStatus());
+        }catch(DuplicatedNameException e){
+            productResultDto.setMsg(e.getMessage());
+            productResultDto.setStatus(e.getStatus());
+        }catch(Exception e){
+            e.printStackTrace();
+            productResultDto.setStatus("500");
+            productResultDto.setMsg("브랜드 업데이트 도중 에러가 발생하였습니다.");
+        }finally {
+            return productResultDto;
+        }
+    }
 }

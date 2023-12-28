@@ -169,4 +169,20 @@
         WHERE
             1=1
     </select>
+    <update id="updateBrand" parameterType="productBrandDto">
+        UPDATE
+            product_brand
+        SET
+            product_brand_name = '${productBrandName}'
+        WHERE
+            product_brand_id = '${productBrandId}'
+    </update>
+    <select id="getProductBrandNameByBrandId" parameterType="String" resultType="String">
+        SELECT
+            product_brand_name
+        FROM
+            product_brand
+        WHERE
+            1=1 AND product_brand_id = '${productBrandId}'
+    </select>
 </mapper>

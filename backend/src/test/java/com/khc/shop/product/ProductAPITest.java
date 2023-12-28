@@ -378,6 +378,36 @@ public class ProductAPITest {
         }
    }
 
+   @Test
+   @DisplayName("update Brand Test")
+   public void updateBrandTest() throws Exception{
+        ProductBrandDto productBrandDto = new ProductBrandDto();
+        List<ProductBrandDto> productBrandDtoList = productMapper.getBrandList();
+        String expectedBrandName = "UPDATE TEST";
+        String expectedStatus = "200";
+        for(ProductBrandDto dto : productBrandDtoList){
+            if("TEST BRAND".equals(dto.getProductBrandName())){
+                productBrandDto.setProductBrandId(dto.getProductBrandId());
+            }else if("UPDATE TEST".equals(dto.getProductBrandName())){
+                expectedStatus = "501";
+            }
+        }
+        if(productBrandDto.getProductBrandId() == null) {
+            expectedStatus = "502";
+            productBrandDto.setProductBrandId("100");
+        }
+        productBrandDto.setProductBrandName(expectedBrandName);
+        ObjectMapper mapper = new ObjectMapper();
+        mockMvc.perform(
+                put("/product/brand/"+productBrandDto.getProductBrandId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(productBrandDto))
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(expectedStatus));
+   }
+
 
 
 

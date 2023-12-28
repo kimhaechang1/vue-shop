@@ -20,4 +20,5 @@ public interface ProductService {
     public ProductResultDto deleteProductItem(String productCode) throws Exception;
     public ProductResultDto insertBrand(ProductBrandDto productBrandDto) throws Exception;
     public ProductResultDto getBrandList() throws Exception;
+    public ProductResultDto updateBrand(ProductBrandDto productBrandDto) throws Exception;
 }

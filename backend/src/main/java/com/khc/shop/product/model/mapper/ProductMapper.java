@@ -28,4 +28,7 @@ public interface ProductMapper {
     public Integer countByBrandName(String brandName) throws SQLException;
     public void insertBrand(ProductBrandDto productBrandDto) throws SQLException;
     public List<ProductBrandDto> getBrandList() throws SQLException;
+    public void updateBrand(ProductBrandDto productBrandDto) throws SQLException;
+    public String getProductBrandNameByBrandId(String productBrandId) throws SQLException;
+
 }
