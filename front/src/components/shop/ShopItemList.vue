@@ -16,6 +16,9 @@ const params = ref({
 });
 const totalPageCount = ref(1);
 const totalItemCount = ref(0);
+const brandList = ref([]);
+const selectedBrandId = ref("");
+const searchWord = ref("");
 
 const getProducts = async () => {
   try {
@@ -45,6 +48,29 @@ const getProducts = async () => {
   }
 };
 
+const getBrandList = async () => {
+  try{
+    const res = await fetch(
+      `http://localhost/api/product/brand`
+    ,{
+      method : "GET",
+      headers : {
+        "Access-Control-Allow-Origin": "*",
+      }
+    })
+    const json = await res.json();
+    const { data, msg, status } = json;
+    if(status == 200 || status == 210){
+      brandList.value = data;
+    }else{
+      alert(msg);
+    }
+  }catch(exception){
+    console.log(exception)
+  }
+}
+
+
 onMounted(async () => {
   const { pgno, spp, brand, word } = route.query;
   const newParams = {
@@ -55,6 +81,7 @@ onMounted(async () => {
   };
   params.value = newParams;
   await getProducts();
+  await getBrandList();
 });
 
 watch(
@@ -79,23 +106,38 @@ const pgnoChangeEvent = (pgno) => {
     query: {
       pgno,
       spp: params.value.spp,
-      brand: params.value.brand,
-      word: params.value.word,
+      brand: selectedBrandId.value,
+      word: searchWord.value,
     },
   });
 };
 
-const searchEvent = () => {};
+const searchEvent = () => {
+  router.push({
+    name : "shop-list",
+    query:{
+      pgno : 1,
+      spp : params.value.spp,
+      brand : selectedBrandId.value,
+      word : searchWord.value
+    }
+  })
+};
 </script>
 
 <template>
   <div class="shop-items-layout">
     <div class="search-layout">
       <div></div>
-      <select>
-        <option>선택 해 주세요</option>
-        <option value="title">제품명</option>
-      </select>
+      <div>
+        <select v-model="selectedBrandId">
+          <option value="">브랜드를 선택 해 주세요</option>
+          <option v-for="(item, idx) in brandList" :value="item.productBrandId">{{item.productBrandName}}</option>
+        </select>
+        <input type="text" placeholder="제품명 입력" v-model="searchWord">
+        <button @click="searchEvent">검색</button>
+      </div>
+      
     </div>
     <div class="items-layout">
       <ul class="shop-items">
